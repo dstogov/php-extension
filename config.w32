@@ -1,0 +1,7 @@
+ARG_ENABLE('test', 'test support', 'no');
+
+if (PHP_TEST != 'no') {
+	AC_DEFINE('HAVE_TEST', 1, 'test support enabled');
+
+	EXTENSION('test', 'test.c', null, '/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1');
+}
