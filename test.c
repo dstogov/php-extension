@@ -72,6 +72,7 @@ static int do_scale_ref(zval *x, zend_long factor)
 	} else if (Z_TYPE_P(x) == IS_ARRAY) {
 		zval *val;
 
+		SEPARATE_ARRAY(x);
 		ZEND_HASH_FOREACH_VAL(Z_ARR_P(x), val) {
 			if (do_scale_ref(val, factor) != SUCCESS) {
 				return FAILURE;
