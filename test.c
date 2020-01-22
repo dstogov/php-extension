@@ -55,9 +55,9 @@ PHP_FUNCTION(test_scale)
 	RETURN_DOUBLE(x * 2);
 }
 
-/* {{{ PHP_RINIT_FUNCTION
+/* {{{ PHP_MINIT_FUNCTION
  */
-PHP_RINIT_FUNCTION(test)
+PHP_MINIT_FUNCTION(test)
 {
 #if defined(ZTS) && defined(COMPILE_DL_TEST)
 	ZEND_TSRMLS_CACHE_UPDATE();
@@ -107,9 +107,9 @@ zend_module_entry test_module_entry = {
 	STANDARD_MODULE_HEADER,
 	"test",					/* Extension name */
 	test_functions,			/* zend_function_entry */
-	NULL,							/* PHP_MINIT - Module initialization */
+	PHP_MINIT(test),				/* PHP_MINIT - Module initialization */
 	NULL,							/* PHP_MSHUTDOWN - Module shutdown */
-	PHP_RINIT(test),			/* PHP_RINIT - Request initialization */
+	NULL,							/* PHP_RINIT - Request initialization */
 	NULL,							/* PHP_RSHUTDOWN - Request shutdown */
 	PHP_MINFO(test),			/* PHP_MINFO - Module info */
 	PHP_TEST_VERSION,		/* Version */
