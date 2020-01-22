@@ -51,41 +51,32 @@ PHP_FUNCTION(test_test2)
 }
 /* }}}*/
 
-static int do_scale(zval *return_value, zval *x, zend_long factor)
+static int do_scale_ref(zval *x, zend_long factor)
 {
 	ZVAL_DEREF(x);
 	if (Z_TYPE_P(x) == IS_LONG) {
-		RETVAL_LONG(Z_LVAL_P(x) * factor);
+		Z_LVAL_P(x) *= factor;
 	} else if (Z_TYPE_P(x) == IS_DOUBLE) {
-		RETVAL_DOUBLE(Z_DVAL_P(x) * factor);
+		Z_DVAL_P(x) *= factor;
 	} else if (Z_TYPE_P(x) == IS_STRING) {
-		zend_string *ret = zend_string_safe_alloc(Z_STRLEN_P(x), factor, 0, 0);
-		char *p = ZSTR_VAL(ret);
+		size_t len = Z_STRLEN_P(x);
+		char *p;
 
-		while (factor-- > 0) {
-			memcpy(p, Z_STRVAL_P(x), Z_STRLEN_P(x));
-			p += Z_STRLEN_P(x);
+		ZVAL_STR(x, zend_string_safe_realloc(Z_STR_P(x), len, factor, 0, 0));
+		p = Z_STRVAL_P(x) + len;
+		while (--factor > 0) {
+			memcpy(p, Z_STRVAL_P(x), len);
+			p += len;
 		}
 		*p = '\000';
-		RETVAL_STR(ret);
 	} else if (Z_TYPE_P(x) == IS_ARRAY) {
-		zend_array *ret = zend_new_array(zend_array_count(Z_ARR_P(x)));
-		zend_ulong idx;
-		zend_string *key;
-		zval *val, tmp;
+		zval *val;
 
-		ZEND_HASH_FOREACH_KEY_VAL(Z_ARR_P(x), idx, key, val) {
-			if (do_scale(&tmp, val, factor) != SUCCESS) {
-				zend_array_destroy(ret);
+		ZEND_HASH_FOREACH_VAL(Z_ARR_P(x), val) {
+			if (do_scale_ref(val, factor) != SUCCESS) {
 				return FAILURE;
 			}
-			if (key) {
-				zend_hash_add(ret, key, &tmp);
-			} else {
-				zend_hash_index_add(ret, idx, &tmp);
-			}
 		} ZEND_HASH_FOREACH_END();
-		RETVAL_ARR(ret);
 	} else {
 		php_error_docref(NULL, E_WARNING, "unexpected argument type");
 		return FAILURE;
@@ -93,7 +84,7 @@ static int do_scale(zval *return_value, zval *x, zend_long factor)
 	return SUCCESS;
 }
 
-PHP_FUNCTION(test_scale)
+PHP_FUNCTION(test_scale_ref)
 {
 	zval *x;
 	zend_long factor = TEST_G(scale); // default value
@@ -104,7 +95,7 @@ PHP_FUNCTION(test_scale)
 		Z_PARAM_LONG(factor)
 	ZEND_PARSE_PARAMETERS_END();
 
-	do_scale(return_value, x, factor);
+	do_scale_ref(x, factor);
 }
 
 static PHP_GINIT_FUNCTION(test)
@@ -145,8 +136,8 @@ ZEND_BEGIN_ARG_INFO(arginfo_test_test2, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
-ZEND_BEGIN_ARG_INFO(arginfo_test_scale, 0)
-	ZEND_ARG_INFO(0, x)
+ZEND_BEGIN_ARG_INFO(arginfo_test_scale_ref, 0)
+	ZEND_ARG_INFO(1, x) // pass by reference
 	ZEND_ARG_INFO(0, factor)
 ZEND_END_ARG_INFO()
 
@@ -155,7 +146,7 @@ ZEND_END_ARG_INFO()
 static const zend_function_entry test_functions[] = {
 	PHP_FE(test_test1,		arginfo_test_test1)
 	PHP_FE(test_test2,		arginfo_test_test2)
-	PHP_FE(test_scale,		arginfo_test_scale)
+	PHP_FE(test_scale_ref,	arginfo_test_scale_ref)
 	PHP_FE_END
 };
 /* }}} */
