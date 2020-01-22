@@ -44,6 +44,17 @@ PHP_FUNCTION(test_test2)
 }
 /* }}}*/
 
+PHP_FUNCTION(test_scale)
+{
+	double x;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_DOUBLE(x)
+	ZEND_PARSE_PARAMETERS_END();
+
+	RETURN_DOUBLE(x * 2);
+}
+
 /* {{{ PHP_RINIT_FUNCTION
  */
 PHP_RINIT_FUNCTION(test)
@@ -76,11 +87,16 @@ ZEND_BEGIN_ARG_INFO(arginfo_test_test2, 0)
 ZEND_END_ARG_INFO()
 /* }}} */
 
+ZEND_BEGIN_ARG_INFO(arginfo_test_scale, 0)
+	ZEND_ARG_INFO(0, x)
+ZEND_END_ARG_INFO()
+
 /* {{{ test_functions[]
  */
 static const zend_function_entry test_functions[] = {
 	PHP_FE(test_test1,		arginfo_test_test1)
 	PHP_FE(test_test2,		arginfo_test_test2)
+	PHP_FE(test_scale,		arginfo_test_scale)
 	PHP_FE_END
 };
 /* }}} */
