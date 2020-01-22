@@ -75,6 +75,7 @@ static int do_scale(zval *return_value, zval *x, zend_long factor)
 
 		ZEND_HASH_FOREACH_KEY_VAL(Z_ARR_P(x), idx, key, val) {
 			if (do_scale(&tmp, val, factor) != SUCCESS) {
+				zend_array_destroy(ret);
 				return FAILURE;
 			}
 			if (key) {
