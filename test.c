@@ -53,6 +53,7 @@ PHP_FUNCTION(test_test2)
 
 static int do_scale(zval *return_value, zval *x, zend_long factor)
 {
+	ZVAL_DEREF(x);
 	if (Z_TYPE_P(x) == IS_LONG) {
 		RETVAL_LONG(Z_LVAL_P(x) * factor);
 	} else if (Z_TYPE_P(x) == IS_DOUBLE) {
