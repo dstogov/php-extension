@@ -17,6 +17,11 @@
 
 ZEND_DECLARE_MODULE_GLOBALS(test)
 
+PHP_INI_BEGIN()
+	STD_PHP_INI_ENTRY("test.scale", "1", PHP_INI_ALL, OnUpdateLong, scale,
+		zend_test_globals, test_globals)
+PHP_INI_END()
+
 /* {{{ void test_test1()
  */
 PHP_FUNCTION(test_test1)
@@ -69,12 +74,7 @@ static PHP_GINIT_FUNCTION(test)
  */
 PHP_MINIT_FUNCTION(test)
 {
-#if defined(ZTS) && defined(COMPILE_DL_TEST)
-	ZEND_TSRMLS_CACHE_UPDATE();
-#endif
-
-	REGISTER_LONG_CONSTANT("TEST_SCALE_FACTOR", 2,
-		CONST_CS | CONST_PERSISTENT);
+	REGISTER_INI_ENTRIES();
 
 	return SUCCESS;
 }
