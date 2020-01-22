@@ -15,6 +15,8 @@
 	ZEND_PARSE_PARAMETERS_END()
 #endif
 
+ZEND_DECLARE_MODULE_GLOBALS(test)
+
 /* {{{ void test_test1()
  */
 PHP_FUNCTION(test_test1)
@@ -52,7 +54,15 @@ PHP_FUNCTION(test_scale)
 		Z_PARAM_DOUBLE(x)
 	ZEND_PARSE_PARAMETERS_END();
 
-	RETURN_DOUBLE(x * 2);
+	RETURN_DOUBLE(x * TEST_G(scale));
+}
+
+static PHP_GINIT_FUNCTION(test)
+{
+#if defined(COMPILE_DL_BCMATH) && defined(ZTS)
+	ZEND_TSRMLS_CACHE_UPDATE();
+#endif
+	test_globals->scale= 1;
 }
 
 /* {{{ PHP_MINIT_FUNCTION
@@ -116,7 +126,11 @@ zend_module_entry test_module_entry = {
 	NULL,							/* PHP_RSHUTDOWN - Request shutdown */
 	PHP_MINFO(test),			/* PHP_MINFO - Module info */
 	PHP_TEST_VERSION,		/* Version */
-	STANDARD_MODULE_PROPERTIES
+	PHP_MODULE_GLOBALS(test),	/* Module globals */
+	PHP_GINIT(test),			/* PHP_GINIT - Globals initialization */
+	NULL,					/* PHP_GSHUTDOWN - Globals shutdown */
+	NULL,
+	STANDARD_MODULE_PROPERTIES_EX
 };
 /* }}} */
 
